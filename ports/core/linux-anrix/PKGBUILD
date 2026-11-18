@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+pkgname=linux-anrix
+pkgver=6.12.1
+pkgrel=1
+pkgdesc='ANRIX Linux kernel for Intel Alder Lake laptops'
+arch=('x86_64')
+license=('GPL')
+source=("https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${pkgver}.tar.xz")
+sha256sums=('SKIP')
+
+prepare() {
+    if [ -f /etc/anrix/kernel.config ]; then
+        cp /etc/anrix/kernel.config .config
+    else
+        make LLVM=1 defconfig
+    fi
+}
+
+build() {
+    make LLVM=1 -j"${MAKEFLAGS#*-j}"
+}
+
+package() {
+    install -Dm755 arch/x86/boot/bzImage "${pkgdir}/boot/vmlinuz-anrix"
+    make LLVM=1 INSTALL_MOD_PATH="${pkgdir}" modules_install
+    make LLVM=1 INSTALL_HDR_PATH="${pkgdir}/usr" headers_install
+}

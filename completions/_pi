@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# zsh completion for pi.
+
+_pi()
+{
+    local state
+    _arguments -C \
+        '--root[operate on an alternate root]:root directory:_directories' \
+        '--nodeps[skip dependency resolution]' \
+        '--help[show help]' \
+        '--version[show version]' \
+        '1:command:->command' \
+        '*::argument:->argument'
+
+    case $state in
+        command)
+            _values 'command' \
+                'build:build a package' \
+                'sync:download a repository index' \
+                'install:install package archives' \
+                'remove:remove an installed package' \
+                'upgrade:upgrade installed packages' \
+                'autoremove:remove unneeded packages' \
+                'search:search repository indexes' \
+                'verify:verify an installed package' \
+                'info:show package metadata' \
+                'clean:clean the package cache' \
+                'index:generate a repository index'
+            ;;
+        argument)
+            case $words[1] in
+                build|install) _files ;;
+                clean) _arguments '--keep[number of cache generations]:generations:(0 1 2 3 4 5)' ;;
+                sync) _message 'repository URL and index path' ;;
+                remove|verify|info|search) _message 'package name or search term' ;;
+            esac
+            ;;
+    esac
+}
+
+_pi "$@"
